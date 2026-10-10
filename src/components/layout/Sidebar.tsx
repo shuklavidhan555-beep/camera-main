@@ -11,24 +11,24 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight, 
-  Cpu, 
-  Radio, 
-  CheckCircle2,
-  Sparkles,
-  Zap
+  Cpu
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, safetyAlerts, cameras } = useCommandCenter();
+  const { activeTab, setActiveTab, safetyAlerts, cameras, hotspots, kpis } = useCommandCenter();
   const [collapsed, setCollapsed] = useState(false);
 
   const criticalCount = safetyAlerts.filter((a) => a.severity === 'Critical' && !a.acknowledged).length;
+  const onlineCount = cameras.filter((c) => c.status === 'online').length;
+  const avgLatency = cameras.length > 0 
+    ? Math.round(cameras.reduce((sum, c) => sum + (c.latencyMs || 0), 0) / cameras.length) 
+    : 38;
 
   const navigationItems: { id: NavigationTab; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string | number; badgeColor?: string }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'surveillance', label: 'Live Surveillance', icon: Video, badge: '48 LIVE', badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800' },
-    { id: 'traffic', label: 'Traffic Analytics', icon: Activity, badge: '6 HOTSPOTS', badgeColor: 'bg-amber-950 text-amber-300 border-amber-800' },
+    { id: 'surveillance', label: 'Live Surveillance', icon: Video, badge: `${onlineCount} LIVE`, badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800' },
+    { id: 'traffic', label: 'Traffic Analytics', icon: Activity, badge: `${hotspots.length} HOTSPOTS`, badgeColor: 'bg-amber-950 text-amber-300 border-amber-800' },
     { 
       id: 'alerts', 
       label: 'Safety Alerts', 
@@ -36,7 +36,7 @@ export const Sidebar: React.FC = () => {
       badge: criticalCount > 0 ? `${criticalCount} CRIT` : undefined, 
       badgeColor: 'bg-red-600 text-white animate-pulse' 
     },
-    { id: 'cameras', label: 'Cameras', icon: Camera, badge: '52', badgeColor: 'bg-slate-800 text-slate-300' },
+    { id: 'cameras', label: 'Cameras', icon: Camera, badge: `${cameras.length}`, badgeColor: 'bg-slate-800 text-slate-300' },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -142,8 +142,8 @@ export const Sidebar: React.FC = () => {
 
             {/* Inference pipeline telemetry */}
             <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 px-1">
-              <span>Avg Latency: <span className="text-cyan-400">38ms</span></span>
-              <span>Uptime: <span className="text-slate-200">99.9%</span></span>
+              <span>Avg Latency: <span className="text-cyan-400">{avgLatency}ms</span></span>
+              <span>Uptime: <span className="text-slate-200">{kpis.operationalPercentage}%</span></span>
             </div>
           </div>
         ) : (

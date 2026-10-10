@@ -1,32 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { CCTVFeedPlayer } from '../common/CCTVFeedPlayer';
-import { CameraDetailModal } from './CameraDetailModal';
 import { 
   Video, 
-  Filter, 
   Grid2X2, 
   Grid3X3, 
   LayoutList, 
-  Search, 
-  Wifi, 
-  WifiOff, 
-  AlertTriangle,
-  RotateCw,
-  SlidersHorizontal,
-  ChevronDown
+  Search
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { CameraFeed, ZoneId } from '../../types';
 
 export const LiveSurveillancePage: React.FC = () => {
-  const { cameras, selectedCamera, setSelectedCamera } = useCommandCenter();
+  const { cameras, setSelectedCamera } = useCommandCenter();
 
   const [selectedZone, setSelectedZone] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [selectedIncident, setSelectedIncident] = useState<string>('All');
   const [searchFilter, setSearchFilter] = useState('');
   const [gridLayout, setGridLayout] = useState<'4' | '6' | 'list'>('4');
+
+  const [currentPage, setCurrentPage] = useState(0);
 
   // Filter cameras
   const filteredCameras = useMemo(() => {
@@ -48,6 +41,16 @@ export const LiveSurveillancePage: React.FC = () => {
       return true;
     });
   }, [cameras, selectedZone, selectedStatus, selectedIncident, searchFilter]);
+
+  const pageSize = gridLayout === '4' ? 4 : gridLayout === '6' ? 6 : filteredCameras.length;
+  const totalPages = Math.max(1, Math.ceil(filteredCameras.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, Math.max(0, totalPages - 1));
+
+  const displayedCameras = useMemo(() => {
+    if (gridLayout === 'list') return filteredCameras;
+    const start = safeCurrentPage * pageSize;
+    return filteredCameras.slice(start, start + pageSize);
+  }, [filteredCameras, gridLayout, safeCurrentPage, pageSize]);
 
   const onlineCount = cameras.filter((c) => c.status === 'online').length;
   const warningCount = cameras.filter((c) => c.status === 'warning').length;
@@ -83,8 +86,31 @@ export const LiveSurveillancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Layout Switchers */}
+        {/* Right: Layout Switchers & Pagination */}
         <div className="flex items-center gap-2 self-end md:self-auto">
+          {gridLayout !== 'list' && totalPages > 1 && (
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-xs font-mono text-slate-300">
+              <span className="text-[11px] text-slate-400">
+                Page {safeCurrentPage + 1}/{totalPages}
+              </span>
+              <button
+                disabled={safeCurrentPage === 0}
+                onClick={() => setCurrentPage(Math.max(0, safeCurrentPage - 1))}
+                className="px-1.5 py-0.5 rounded hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-cyan-400 font-bold"
+                title="Previous Page"
+              >
+                ‹
+              </button>
+              <button
+                disabled={safeCurrentPage >= totalPages - 1}
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, safeCurrentPage + 1))}
+                className="px-1.5 py-0.5 rounded hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-cyan-400 font-bold"
+                title="Next Page"
+              >
+                ›
+              </button>
+            </div>
+          )}
           <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg flex items-center gap-1">
             <button
               onClick={() => setGridLayout('4')}
@@ -283,7 +309,7 @@ export const LiveSurveillancePage: React.FC = () => {
           "grid gap-4",
           gridLayout === '4' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
         )}>
-          {filteredCameras.map((camera) => (
+          {displayedCameras.map((camera) => (
             <CCTVFeedPlayer
               key={camera.id}
               camera={camera}
@@ -293,14 +319,6 @@ export const LiveSurveillancePage: React.FC = () => {
             />
           ))}
         </div>
-      )}
-
-      {/* Selected Camera Detailed View Modal */}
-      {selectedCamera && (
-        <CameraDetailModal
-          camera={selectedCamera}
-          onClose={() => setSelectedCamera(null)}
-        />
       )}
     </div>
   );

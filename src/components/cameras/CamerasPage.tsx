@@ -6,23 +6,20 @@ import {
   Search, 
   RotateCw, 
   Eye, 
-  CheckCircle, 
-  AlertTriangle, 
-  WifiOff, 
-  Sliders, 
-  HardDrive, 
-  Sparkles,
-  RefreshCw,
-  Cpu
+  Sliders
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { CameraDetailModal } from '../surveillance/CameraDetailModal';
 
 export const CamerasPage: React.FC = () => {
-  const { cameras, rebootCamera, selectedCamera, setSelectedCamera, showToast } = useCommandCenter();
+  const { cameras, rebootCamera, setSelectedCamera, showToast } = useCommandCenter();
   const [zoneFilter, setZoneFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
+
+  const onlineCount = cameras.filter((c) => c.status === 'online').length;
+  const warningCount = cameras.filter((c) => c.status === 'warning').length;
+  const offlineCount = cameras.filter((c) => c.status === 'offline').length;
+  const zones = ['All', ...Array.from(new Set(cameras.map((c) => c.zone))).sort()];
 
   const filteredCameras = cameras.filter((cam) => {
     if (zoneFilter !== 'All' && cam.zone !== zoneFilter) return false;
@@ -52,7 +49,7 @@ export const CamerasPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-white">Camera Sensor Inventory & Telemetry</h2>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
-                52 REGISTERED NODES
+                {cameras.length} REGISTERED NODES
               </span>
             </div>
             <p className="text-xs text-slate-400">
@@ -64,13 +61,13 @@ export const CamerasPage: React.FC = () => {
         {/* Quick summary counters */}
         <div className="flex items-center gap-3 text-xs font-mono">
           <div className="px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-800 text-emerald-300">
-            48 / 52 ONLINE
+            {onlineCount} / {cameras.length} ONLINE
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-800 text-amber-300">
-            2 WARNINGS
+            {warningCount} WARNINGS
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">
-            2 OFFLINE
+            {offlineCount} OFFLINE
           </div>
         </div>
       </div>
@@ -95,13 +92,9 @@ export const CamerasPage: React.FC = () => {
             onChange={(e) => setZoneFilter(e.target.value)}
             className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-mono text-xs focus:outline-none focus:border-cyan-500"
           >
-            <option value="All">All Zones</option>
-            <option value="Downtown Core">Downtown Core</option>
-            <option value="Highway A1">Highway A1</option>
-            <option value="Waterfront Bay">Waterfront Bay</option>
-            <option value="Tech Corridor">Tech Corridor</option>
-            <option value="North Sector">North Sector</option>
-            <option value="Harbour District">Harbour District</option>
+            {zones.map((z) => (
+              <option key={z} value={z}>{z === 'All' ? 'All Zones' : z}</option>
+            ))}
           </select>
 
           <span className="text-slate-400 font-mono text-[11px] ml-2">Status:</span>
@@ -138,7 +131,6 @@ export const CamerasPage: React.FC = () => {
               {filteredCameras.map((cam) => {
                 const isOnline = cam.status === 'online';
                 const isWarning = cam.status === 'warning';
-                const isOffline = cam.status === 'offline';
 
                 return (
                   <tr key={cam.id} className="hover:bg-slate-900/60 transition-colors">
@@ -229,13 +221,6 @@ export const CamerasPage: React.FC = () => {
           </table>
         </div>
       </div>
-
-      {selectedCamera && (
-        <CameraDetailModal
-          camera={selectedCamera}
-          onClose={() => setSelectedCamera(null)}
-        />
-      )}
     </div>
   );
 };

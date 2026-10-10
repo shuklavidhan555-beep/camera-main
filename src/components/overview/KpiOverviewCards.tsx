@@ -6,26 +6,35 @@ import {
   Flame, 
   ShieldAlert, 
   TrendingUp, 
+  TrendingDown,
   ArrowUpRight, 
   AlertTriangle,
-  Radio,
-  CheckCircle2
+  Radio
 } from 'lucide-react';
 import { formatNumber, cn } from '../../lib/utils';
 
 export const KpiOverviewCards: React.FC = () => {
   const { 
-    cameras, 
     safetyAlerts, 
-    hotspots, 
+    kpis,
     setActiveTab,
-    todayVehiclesCount 
+    todayVehiclesCount,
+    hourlyData
   } = useCommandCenter();
 
-  const activeCameras = cameras.filter((c) => c.status === 'online' || c.status === 'warning').length;
-  const totalCameras = cameras.length;
-  const criticalAlerts = safetyAlerts.filter((a) => a.severity === 'Critical' && !a.acknowledged).length;
-  const totalHotspots = hotspots.length;
+  const activeCameras = kpis.activeCameras;
+  const totalCameras = kpis.totalCameras;
+  const criticalAlerts = kpis.criticalAlertsCount;
+  const totalHotspots = kpis.activeBottlenecks;
+
+  const topCriticalAlert = safetyAlerts.find((a) => a.severity === 'Critical' && !a.acknowledged);
+
+  const totalVolume = hourlyData.reduce((sum, h) => sum + h.volume, 0);
+  const totalBaseline = hourlyData.reduce((sum, h) => sum + h.baseline, 0);
+  const baselineDiffPercent = totalBaseline > 0 
+    ? Number((((totalVolume - totalBaseline) / totalBaseline) * 100).toFixed(1)) 
+    : 0;
+  const isAboveBaseline = baselineDiffPercent >= 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -52,7 +61,7 @@ export const KpiOverviewCards: React.FC = () => {
         <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-800/80 font-mono">
           <div className="flex items-center gap-1.5 text-emerald-400">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>92.3% Operational</span>
+            <span>{kpis.operationalPercentage}% Operational</span>
           </div>
           <span className="text-slate-500 flex items-center gap-0.5 group-hover:text-cyan-400 transition-colors">
             Manage <ArrowUpRight className="w-3 h-3" />
@@ -84,9 +93,13 @@ export const KpiOverviewCards: React.FC = () => {
         </div>
 
         <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-800/80 font-mono">
-          <div className="flex items-center gap-1 text-emerald-400">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+14.2% vs Yesterday</span>
+          <div className={cn("flex items-center gap-1", isAboveBaseline ? "text-emerald-400" : "text-amber-400")}>
+            {isAboveBaseline ? (
+              <TrendingUp className="w-3.5 h-3.5" />
+            ) : (
+              <TrendingDown className="w-3.5 h-3.5" />
+            )}
+            <span>{isAboveBaseline ? `+${baselineDiffPercent}%` : `${baselineDiffPercent}%`} vs Baseline</span>
           </div>
           <span className="text-slate-500 flex items-center gap-0.5 group-hover:text-blue-400 transition-colors">
             Analytics <ArrowUpRight className="w-3 h-3" />
@@ -121,7 +134,7 @@ export const KpiOverviewCards: React.FC = () => {
         <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-800/80 font-mono">
           <div className="flex items-center gap-1.5 text-amber-400">
             <AlertTriangle className="w-3 h-3" />
-            <span>2 Severe Bottlenecks</span>
+            <span>{kpis.severeBottlenecks} Severe Bottlenecks</span>
           </div>
           <span className="text-slate-500 flex items-center gap-0.5 group-hover:text-amber-400 transition-colors">
             View Map <ArrowUpRight className="w-3 h-3" />
@@ -168,11 +181,11 @@ export const KpiOverviewCards: React.FC = () => {
         </div>
 
         <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-800/80 font-mono">
-          <div className="flex items-center gap-1.5 text-red-400 font-bold">
-            <Radio className="w-3 h-3 animate-spin" />
-            <span>Grand Ave Collision</span>
+          <div className="flex items-center gap-1.5 text-red-400 font-bold truncate max-w-[200px]">
+            <Radio className="w-3 h-3 animate-spin shrink-0" />
+            <span className="truncate">{topCriticalAlert ? topCriticalAlert.type : 'Sector 01 Secured'}</span>
           </div>
-          <span className="text-red-300 flex items-center gap-0.5 group-hover:underline">
+          <span className="text-red-300 flex items-center gap-0.5 group-hover:underline shrink-0">
             Resolve <ArrowUpRight className="w-3 h-3" />
           </span>
         </div>

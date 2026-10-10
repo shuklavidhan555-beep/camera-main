@@ -5,20 +5,15 @@ import {
   Search, 
   Bell, 
   Clock, 
-  Calendar, 
   Sun, 
   Moon, 
   Contrast, 
   Volume2, 
   VolumeX, 
   ShieldCheck, 
-  Camera, 
-  AlertTriangle,
-  ChevronDown,
-  UserCheck
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { ThemeMode } from '../../types';
 
 export const TopBar: React.FC = () => {
   const { 

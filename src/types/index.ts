@@ -14,12 +14,40 @@ export type AlertSeverity = 'Critical' | 'High' | 'Medium' | 'Low';
 
 export interface DetectedObject {
   id: string;
-  type: 'car' | 'bus' | 'truck' | 'pedestrian' | 'bicycle' | 'motorcycle';
+  type: 'car' | 'bus' | 'truck' | 'pedestrian' | 'bicycle' | 'motorcycle' | 'animal';
   confidence: number;
   box: { x: number; y: number; w: number; h: number }; // percentages 0-100
   speed?: number; // km/h
+  acceleration?: number; // m/s^2
+  trajectoryAngle?: number; // degrees 0-360
   licensePlate?: string;
   isViolation?: boolean;
+  collisionRisk?: {
+    targetId: string;
+    interactionType: 'vehicle-vehicle' | 'vehicle-pedestrian' | 'vehicle-animal';
+    scenario: string;
+    status: 'Critical: Active Collision' | 'Warning: Accident-Prone Near-Miss' | 'Caution: Hazard Ahead';
+    ttc: number | null;
+    distanceMeters: number;
+    relativeSpeed: number;
+  };
+}
+
+export interface KinematicInteraction {
+  id: string;
+  entityAId: string;
+  entityBId: string;
+  entityAType: DetectedObject['type'];
+  entityBType: DetectedObject['type'];
+  interactionType: 'vehicle-vehicle' | 'vehicle-pedestrian' | 'vehicle-animal';
+  scenario: 'Head-On' | 'Rear-End' | 'T-Bone' | 'Sudden Braking' | 'Jaywalking' | 'Roadway Intrusion' | 'Unsafe Headway' | 'Trajectory Conflict' | 'Sudden Swerving';
+  status: 'Critical: Active Collision' | 'Warning: Accident-Prone Near-Miss' | 'Caution: Hazard Ahead';
+  timeToCollisionSec: number | null;
+  proximityMeters: number;
+  relativeVelocityKmH: number;
+  riskScore: number;
+  pointA: { x: number; y: number };
+  pointB: { x: number; y: number };
 }
 
 export interface CameraFeed {
@@ -42,6 +70,8 @@ export interface CameraFeed {
   videoTheme: 'highway' | 'intersection' | 'bridge' | 'crosswalk' | 'tunnel' | 'roundabout';
   recentEvents: { time: string; text: string; severity: AlertSeverity }[];
   imageUrl?: string;
+  videoUrl?: string;
+  activeHazards?: KinematicInteraction[];
 }
 
 export interface SafetyAlert {
@@ -60,10 +90,17 @@ export interface SafetyAlert {
   vehiclesInvolved: string[];
   snapshotBg: string;
   imageUrl?: string;
+  videoUrl?: string;
   dispatchedStatus?: 'none' | 'dispatching' | 'dispatched';
   dispatchedUnits?: string[];
   dispatchedAt?: string;
   etaMinutes?: number;
+  collisionType?: 'Vehicle-Vehicle' | 'Vehicle-Pedestrian' | 'Vehicle-Animal';
+  timeToCollisionSec?: number;
+  proximityMeters?: number;
+  relativeClosureSpeedKmH?: number;
+  hazardStatus?: 'Critical: Active Collision' | 'Warning: Accident-Prone Near-Miss' | 'Caution: Hazard Ahead';
+  interactingObjectIds?: string[];
 }
 
 export interface TrafficHotspot {

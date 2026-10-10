@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
-import { Siren, AlertTriangle, ArrowRight, X } from 'lucide-react';
+import { Siren, ArrowRight, X } from 'lucide-react';
 
 export const EmergencyBanner: React.FC = () => {
   const { 

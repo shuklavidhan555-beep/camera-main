@@ -3,19 +3,11 @@ import { SafetyAlert } from '../../types';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { 
   X, 
-  ShieldAlert, 
-  Flame, 
-  AlertTriangle, 
-  Clock, 
-  MapPin, 
-  Truck, 
   CheckCircle, 
-  Ambulance, 
   Siren, 
-  Radio, 
   Sparkles,
   Car,
-  Share2
+  Activity
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -28,6 +20,7 @@ export const AccidentDetailModal: React.FC<AccidentDetailModalProps> = ({ alert,
   const { dispatchEmergencyTeam, acknowledgeAlert, cameras } = useCommandCenter();
   const [selectedUnit, setSelectedUnit] = useState<string>('EMS Ambulance + Highway Patrol');
   const [isDispatching, setIsDispatching] = useState(false);
+  const [mediaMode, setMediaMode] = useState<'video' | 'snapshot'>('snapshot');
 
   if (!alert) return null;
 
@@ -61,7 +54,7 @@ export const AccidentDetailModal: React.FC<AccidentDetailModalProps> = ({ alert,
                 </h2>
               </div>
               <p className="text-xs text-red-200/80 font-mono mt-0.5">
-                Incident ID: {alert.id} • Camera Sensor: {alert.cameraId} • Triggered: {alert.timestamp}
+                Incident ID: {alert.id} • Camera: {alert.cameraId} {relatedCamera ? `(${relatedCamera.name})` : ''} • Triggered: {alert.timestamp}
               </p>
             </div>
           </div>
@@ -78,9 +71,45 @@ export const AccidentDetailModal: React.FC<AccidentDetailModalProps> = ({ alert,
         <div className="grid grid-cols-1 lg:grid-cols-3 flex-1 overflow-y-auto">
           {/* Left 2 Cols: Incident Video Replay & Bounding Box Snapshot */}
           <div className="lg:col-span-2 p-5 bg-black/50 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col gap-4">
-            {/* Synthetic Incident Frame Player */}
+            {/* Media Mode Switcher if video is available */}
+            {alert.videoUrl && (
+              <div className="flex items-center justify-between bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
+                <span className="text-[11px] font-mono text-slate-400">Evidence Source:</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setMediaMode('snapshot')}
+                    className={cn(
+                      "px-2.5 py-1 rounded text-xs font-mono transition-colors",
+                      mediaMode === 'snapshot' ? "bg-red-600 text-white font-bold" : "text-slate-400 hover:text-white"
+                    )}
+                  >
+                    Forensic Frame
+                  </button>
+                  <button
+                    onClick={() => setMediaMode('video')}
+                    className={cn(
+                      "px-2.5 py-1 rounded text-xs font-mono transition-colors",
+                      mediaMode === 'video' ? "bg-red-600 text-white font-bold" : "text-slate-400 hover:text-white"
+                    )}
+                  >
+                    CCTV Incident Stream
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Incident Frame Player */}
             <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-red-500/70 bg-slate-950 shadow-2xl group">
-              {alert.imageUrl ? (
+              {mediaMode === 'video' && alert.videoUrl ? (
+                <video
+                  src={alert.videoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : alert.imageUrl ? (
                 <>
                   <img
                     src={alert.imageUrl}
@@ -131,6 +160,59 @@ export const AccidentDetailModal: React.FC<AccidentDetailModalProps> = ({ alert,
               </div>
             </div>
 
+            {/* Multi-Entity Kinematic Collision Card */}
+            {(alert.collisionType || alert.hazardStatus || alert.proximityMeters !== undefined) && (
+              <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/60 text-xs font-mono space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-red-300 font-bold">
+                    <Activity className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+                    Kinematic Multi-Entity Collision Telemetry
+                  </span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                    alert.hazardStatus?.includes('Critical') ? "bg-red-600 text-white" : "bg-amber-600 text-white"
+                  )}>
+                    {alert.hazardStatus || 'Critical: Active Collision'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-1 text-[11px]">
+                  <div className="p-2 rounded bg-black/60 border border-red-900/60">
+                    <span className="text-[10px] text-slate-400 block">Scenario</span>
+                    <span className="text-white font-bold">{alert.collisionType || 'Multi-Entity Hazard'}</span>
+                  </div>
+                  <div className="p-2 rounded bg-black/60 border border-red-900/60">
+                    <span className="text-[10px] text-slate-400 block">Time-To-Collision</span>
+                    <span className={cn(
+                      "font-bold",
+                      alert.timeToCollisionSec !== undefined && alert.timeToCollisionSec < 1.0 ? "text-red-400" : "text-amber-300"
+                    )}>
+                      {alert.timeToCollisionSec !== undefined ? `${alert.timeToCollisionSec}s` : '0.0s (Impact)'}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded bg-black/60 border border-red-900/60">
+                    <span className="text-[10px] text-slate-400 block">Spatial Proximity</span>
+                    <span className="text-cyan-300 font-bold">
+                      {alert.proximityMeters !== undefined ? `${alert.proximityMeters}m` : '0.4m'}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded bg-black/60 border border-red-900/60">
+                    <span className="text-[10px] text-slate-400 block">Closure Speed</span>
+                    <span className="text-amber-400 font-bold">
+                      {alert.relativeClosureSpeedKmH !== undefined ? `${alert.relativeClosureSpeedKmH} km/h` : '62.4 km/h'}
+                    </span>
+                  </div>
+                </div>
+
+                {alert.interactingObjectIds && alert.interactingObjectIds.length > 0 && (
+                  <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-red-900/40">
+                    <span>Interacting Vector Nodes:</span>
+                    <span className="text-white font-bold">{alert.interactingObjectIds.join(' ↔ ')}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* AI Explanation Callout */}
             <div className="p-3.5 rounded-xl bg-red-950/30 border border-red-500/40 text-xs">
               <div className="flex items-center gap-1.5 text-red-300 font-bold mb-1 font-mono">
@@ -178,15 +260,25 @@ export const AccidentDetailModal: React.FC<AccidentDetailModalProps> = ({ alert,
                 <span className="text-[10px] text-slate-500 mt-1 block">YOLOv11-Urban + ImpactDetector Ensemble</span>
               </div>
 
-              {/* Detected Vehicles List */}
+              {/* Detected Vehicles & Entities List */}
               <div className="space-y-2">
-                <span className="text-xs font-mono text-slate-400 font-bold">Vehicles Involved:</span>
-                {alert.vehiclesInvolved.map((v, i) => (
-                  <div key={i} className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 text-xs font-mono flex items-center justify-between">
-                    <span className="text-slate-200">{v}</span>
-                    <Car className="w-3.5 h-3.5 text-cyan-400" />
-                  </div>
-                ))}
+                <span className="text-xs font-mono text-slate-400 font-bold">Entities Involved:</span>
+                {alert.vehiclesInvolved.map((v, i) => {
+                  const isAnimal = v.toLowerCase().includes('animal') || v.toLowerCase().includes('deer');
+                  const isPed = v.toLowerCase().includes('pedestrian');
+                  return (
+                    <div key={i} className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 text-xs font-mono flex items-center justify-between">
+                      <span className="text-slate-200">{v}</span>
+                      {isAnimal ? (
+                        <span className="text-xs">🐾</span>
+                      ) : isPed ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">PEDESTRIAN</span>
+                      ) : (
+                        <Car className="w-3.5 h-3.5 text-cyan-400" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Dispatch Unit Selector */}

@@ -2,16 +2,13 @@ import React from 'react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { SafetyAlert } from '../../types';
 import { 
-  AlertTriangle, 
   CheckCircle2, 
-  ExternalLink, 
   Clock, 
   MapPin, 
   Camera, 
   ShieldAlert,
   ArrowRight,
-  Flame,
-  Radio
+  Flame
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { CCTVFeedPlayer } from '../common/CCTVFeedPlayer';
-import { Video, ArrowRight, Grid2X2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Video, ArrowRight } from 'lucide-react';
 
 export const LiveCameraFeedsGrid: React.FC = () => {
   const { cameras, setActiveTab } = useCommandCenter();

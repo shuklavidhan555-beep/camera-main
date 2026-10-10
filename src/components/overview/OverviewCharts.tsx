@@ -11,15 +11,10 @@ import {
   Pie, 
   Cell, 
   BarChart, 
-  Bar, 
-  Legend 
+  Bar
 } from 'recharts';
-import { 
-  HOURLY_TRAFFIC_DATA, 
-  VEHICLE_DISTRIBUTION, 
-  ZONE_SPEED_DATA 
-} from '../../data/mockData';
-import { Activity, PieChart as PieIcon, BarChart3, TrendingUp } from 'lucide-react';
+import { useCommandCenter } from '../../context/CommandCenterContext';
+import { Activity, PieChart as PieIcon, BarChart3 } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -44,12 +39,22 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export const OverviewCharts: React.FC = () => {
+  const { hourlyData, vehicleDistribution, zoneSpeedData } = useCommandCenter();
+
+  // Find dynamic peak hour
+  const peakPoint = hourlyData.reduce((max, h) => h.volume > max.volume ? h : max, hourlyData[0]) || { hour: '12:00' };
+
   // Format zone data for horizontal bar chart
-  const zoneChartData = ZONE_SPEED_DATA.map((z) => ({
+  const zoneChartData = zoneSpeedData.map((z) => ({
     name: z.zone.replace(' District', '').replace(' Sector', ''),
     congestion: z.congestionScore,
     speed: z.avgSpeed,
   }));
+
+  const maxCongestionZone = zoneSpeedData.reduce(
+    (max, z) => z.congestionScore > max.congestionScore ? z : max,
+    zoneSpeedData[0] || { zone: 'Downtown Core', congestionScore: 84 }
+  );
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -66,13 +71,13 @@ export const OverviewCharts: React.FC = () => {
             </div>
           </div>
           <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
-            PEAK: 18:00
+            PEAK: {peakPoint.hour}
           </span>
         </div>
 
         <div className="h-[210px] w-full mt-2">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={HOURLY_TRAFFIC_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="volumeGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
@@ -120,11 +125,11 @@ export const OverviewCharts: React.FC = () => {
             </div>
             <div>
               <h4 className="text-xs font-semibold text-white">Vehicle Classification</h4>
-              <p className="text-[10px] text-slate-400">YOLOv11 multi-class object distribution</p>
+              <p className="text-[10px] text-slate-400">YOLOv8 & ByteTrack object distribution</p>
             </div>
           </div>
           <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
-            18.4k TAGGED
+            {(vehicleDistribution.reduce((sum, v) => sum + v.count, 0) / 1000).toFixed(1)}k TAGGED
           </span>
         </div>
 
@@ -134,7 +139,7 @@ export const OverviewCharts: React.FC = () => {
               <PieChart>
                 <Tooltip content={<CustomTooltip />} />
                 <Pie
-                  data={VEHICLE_DISTRIBUTION}
+                  data={vehicleDistribution}
                   cx="50%"
                   cy="50%"
                   innerRadius={46}
@@ -142,7 +147,7 @@ export const OverviewCharts: React.FC = () => {
                   paddingAngle={4}
                   dataKey="count"
                 >
-                  {VEHICLE_DISTRIBUTION.map((entry, index) => (
+                  {vehicleDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} stroke="#0d1424" strokeWidth={2} />
                   ))}
                 </Pie>
@@ -152,7 +157,7 @@ export const OverviewCharts: React.FC = () => {
 
           {/* Custom Side Legend */}
           <div className="w-[45%] flex flex-col gap-1.5 pr-2">
-            {VEHICLE_DISTRIBUTION.map((item) => (
+            {vehicleDistribution.map((item) => (
               <div key={item.name} className="flex flex-col text-[11px] font-mono">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
@@ -185,8 +190,8 @@ export const OverviewCharts: React.FC = () => {
               <p className="text-[10px] text-slate-400">Corridor density score (0 - 100 max)</p>
             </div>
           </div>
-          <span className="text-[10px] font-mono text-red-400 bg-red-950/60 px-2 py-0.5 rounded border border-red-800/40">
-            DOWNTOWN 84%
+          <span className="text-[10px] font-mono text-red-400 bg-red-950/60 px-2 py-0.5 rounded border border-red-800/40 uppercase">
+            {maxCongestionZone.zone.replace(' District', '').replace(' Sector', '')} {maxCongestionZone.congestionScore}%
           </span>
         </div>
 

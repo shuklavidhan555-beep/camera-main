@@ -1,22 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
-import { SafetyAlert, AlertSeverity, IncidentCategory } from '../../types';
-import { AccidentDetailModal } from './AccidentDetailModal';
+import { AlertSeverity } from '../../types';
 import { 
   ShieldAlert, 
-  AlertTriangle, 
   CheckCircle2, 
   Flame, 
   Clock, 
   MapPin, 
   Camera, 
-  ExternalLink, 
-  Filter, 
   Search, 
-  SlidersHorizontal,
   Siren,
-  Sparkles,
-  Car
+  Car,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -26,9 +21,9 @@ export const SafetyAlertsPage: React.FC = () => {
     acknowledgeAlert, 
     setSelectedCamera, 
     cameras, 
-    selectedAlertForModal, 
     setSelectedAlertForModal,
-    triggerSimulatedAlert 
+    triggerSimulatedAlert,
+    triggerSimulatedCollisionAlert
   } = useCommandCenter();
 
   const [severityFilter, setSeverityFilter] = useState<'All' | AlertSeverity | 'Acknowledged'>('All');
@@ -45,7 +40,11 @@ export const SafetyAlertsPage: React.FC = () => {
       }
 
       // Type Filter
-      if (typeFilter !== 'All' && alert.type !== typeFilter) return false;
+      if (typeFilter === 'Kinematic Hazards') {
+        if (!alert.collisionType && !alert.hazardStatus) return false;
+      } else if (typeFilter !== 'All' && alert.type !== typeFilter) {
+        return false;
+      }
 
       // Search
       if (searchQuery.trim()) {
@@ -87,13 +86,37 @@ export const SafetyAlertsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Trigger simulated incident button for testing / demonstration */}
-        <button
-          onClick={triggerSimulatedAlert}
-          className="px-3 py-1.5 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-300 border border-red-700/60 font-mono text-xs flex items-center gap-1.5 transition-colors self-end md:self-auto"
-        >
-          <Siren className="w-3.5 h-3.5" /> Trigger Simulated Incident
-        </button>
+        {/* Trigger simulated collision & incident buttons */}
+        <div className="flex flex-wrap items-center gap-1.5 self-end md:self-auto">
+          <button
+            onClick={() => triggerSimulatedCollisionAlert('Vehicle-Vehicle')}
+            className="px-2.5 py-1.5 rounded-lg bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-700/80 font-mono text-[11px] flex items-center gap-1 transition-colors shadow"
+            title="Simulate Vehicle <-> Vehicle Collision"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-red-400" /> +Veh↔Veh Crash
+          </button>
+          <button
+            onClick={() => triggerSimulatedCollisionAlert('Vehicle-Pedestrian')}
+            className="px-2.5 py-1.5 rounded-lg bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-700/80 font-mono text-[11px] flex items-center gap-1 transition-colors shadow"
+            title="Simulate Vehicle <-> Pedestrian Conflict"
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> +Veh↔Ped Hazard
+          </button>
+          <button
+            onClick={() => triggerSimulatedCollisionAlert('Vehicle-Animal')}
+            className="px-2.5 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-700/80 font-mono text-[11px] flex items-center gap-1 transition-colors shadow"
+            title="Simulate Vehicle <-> Animal Roadway Intrusion"
+          >
+            <span>🐾</span> +Veh↔Animal Intrusion
+          </button>
+          <button
+            onClick={triggerSimulatedAlert}
+            className="px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[11px] flex items-center gap-1 transition-colors"
+            title="Trigger generic simulated violation"
+          >
+            <Siren className="w-3.5 h-3.5 text-cyan-400" /> Wrong-Way
+          </button>
+        </div>
       </div>
 
       {/* Severity Filter Tabs */}
@@ -166,6 +189,7 @@ export const SafetyAlertsPage: React.FC = () => {
           <span className="text-slate-400 font-mono text-[11px] mr-1">Category:</span>
           {[
             { id: 'All', label: 'All Types' },
+            { id: 'Kinematic Hazards', label: 'Collision Radar' },
             { id: 'Traffic Accident', label: 'Traffic Accident' },
             { id: 'Wrong-Way Vehicle', label: 'Wrong-Way' },
             { id: 'Overspeeding', label: 'Overspeeding' },
@@ -293,6 +317,21 @@ export const SafetyAlertsPage: React.FC = () => {
                     {alert.aiExplanation}
                   </div>
 
+                  {/* Kinematic Collision Telemetry Pill */}
+                  {(alert.collisionType || alert.hazardStatus || alert.timeToCollisionSec !== undefined) && (
+                    <div className="mt-2.5 p-2 rounded-lg bg-red-950/30 border border-red-500/40 text-[11px] font-mono flex items-center justify-between text-red-200">
+                      <span className="font-bold flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                        {alert.collisionType || 'Multi-Entity Collision'}
+                      </span>
+                      <span className="text-amber-300 text-[10px]">
+                        {alert.timeToCollisionSec !== undefined ? `TTC: ${alert.timeToCollisionSec}s` : 'Impact'}
+                        {alert.proximityMeters !== undefined && ` • ${alert.proximityMeters}m`}
+                        {alert.relativeClosureSpeedKmH !== undefined && ` • ${alert.relativeClosureSpeedKmH} km/h`}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Target details */}
                   <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono text-slate-400">
                     <div className="flex items-center gap-1 truncate max-w-[240px]">
@@ -353,14 +392,6 @@ export const SafetyAlertsPage: React.FC = () => {
           })
         )}
       </div>
-
-      {/* Accident Modal */}
-      {selectedAlertForModal && (
-        <AccidentDetailModal
-          alert={selectedAlertForModal}
-          onClose={() => setSelectedAlertForModal(null)}
-        />
-      )}
     </div>
   );
 };

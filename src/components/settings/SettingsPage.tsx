@@ -8,17 +8,13 @@ import {
   Volume2, 
   VolumeX, 
   Cpu, 
-  Sliders, 
-  ShieldCheck, 
   Bell, 
   Save, 
   Siren, 
-  RotateCcw,
-  Sparkles,
-  Zap
+  Zap,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { ThemeMode } from '../../types';
 
 export const SettingsPage: React.FC = () => {
   const { 
@@ -239,7 +235,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div 
             onClick={() => setSoundEnabled(!soundEnabled)}
             className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between cursor-pointer text-xs"
@@ -286,6 +282,27 @@ export const SettingsPage: React.FC = () => {
                 emergencyBannerOpen ? "right-0.5" : "left-0.5"
               )} />
             </div>
+          </div>
+
+          <div 
+            onClick={() => triggerSimulatedAlert()}
+            className="p-3.5 rounded-lg bg-red-950/20 border border-red-500/40 hover:bg-red-950/40 flex items-center justify-between cursor-pointer text-xs transition-colors"
+          >
+            <div>
+              <div className="text-white font-mono font-bold flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400" />
+                Live Incident Drill
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Simulate vision alert injection with CCTV footage replay
+              </p>
+            </div>
+            <button
+              type="button"
+              className="px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-[10px] font-mono font-bold shrink-0 ml-2"
+            >
+              TRIGGER
+            </button>
           </div>
         </div>
       </div>

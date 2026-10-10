@@ -20,8 +20,13 @@ const DashboardContent: React.FC = () => {
     selectedCamera, 
     setSelectedCamera, 
     selectedAlertForModal, 
-    setSelectedAlertForModal 
+    setSelectedAlertForModal,
+    cameras 
   } = useCommandCenter();
+
+  const avgLatency = cameras.length > 0 
+    ? Math.round(cameras.reduce((sum, c) => sum + (c.latencyMs || 0), 0) / cameras.length) 
+    : 38;
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#070a12] text-slate-100">
@@ -56,7 +61,7 @@ const DashboardContent: React.FC = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 Network Grid Synchronized
               </span>
-              <span>Latency: 38ms</span>
+              <span>Latency: {avgLatency}ms</span>
             </div>
           </footer>
         </main>

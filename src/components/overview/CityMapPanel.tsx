@@ -3,20 +3,16 @@ import { useCommandCenter } from '../../context/CommandCenterContext';
 import { CameraFeed } from '../../types';
 import { 
   MapPin, 
-  Layers, 
   AlertTriangle, 
   Radio, 
-  Compass, 
-  Maximize2, 
   ZoomIn, 
   ZoomOut, 
-  RefreshCw,
-  Navigation
+  RefreshCw
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export const CityMapPanel: React.FC = () => {
-  const { cameras, setSelectedCamera, safetyAlerts, theme } = useCommandCenter();
+  const { cameras, setSelectedCamera, safetyAlerts, zoneSpeedData } = useCommandCenter();
   const [activeLayers, setActiveLayers] = useState({
     cameras: true,
     heatmap: true,
@@ -25,6 +21,16 @@ export const CityMapPanel: React.FC = () => {
   });
   const [hoveredCamera, setHoveredCamera] = useState<CameraFeed | null>(null);
   const [mapZoom, setMapZoom] = useState(1);
+
+  const offlineCount = cameras.filter((c) => c.status === 'offline').length;
+  const criticalCount = cameras.filter((c) => c.incidentType === 'Traffic Accident' || c.incidentType === 'Wrong-Way Vehicle').length;
+  const warningCount = cameras.filter((c) => 
+    c.status !== 'offline' && 
+    c.incidentType !== 'Traffic Accident' && 
+    c.incidentType !== 'Wrong-Way Vehicle' && 
+    (c.status === 'warning' || c.incidentType !== 'Normal')
+  ).length;
+  const normalCount = cameras.length - (offlineCount + criticalCount + warningCount);
 
   const toggleLayer = (layer: keyof typeof activeLayers) => {
     setActiveLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
@@ -61,7 +67,7 @@ export const CityMapPanel: React.FC = () => {
                 activeLayers.cameras ? "bg-cyan-600 text-white" : "text-slate-400 hover:text-slate-200"
               )}
             >
-              Cameras (52)
+              Cameras ({cameras.length})
             </button>
             <button
               onClick={() => toggleLayer('heatmap')}
@@ -213,7 +219,7 @@ export const CityMapPanel: React.FC = () => {
                 {/* Zone Downtown Core */}
                 <rect x="420" y="240" width="160" height="150" fill="none" stroke="#06b6d4" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.5" />
                 <text x="430" y="260" fill="#38bdf8" fontWeight="bold">ZONE: DOWNTOWN CORE</text>
-                <text x="430" y="275" fill="#f87171" fontSize="9">CONGESTION: 84% (CRITICAL)</text>
+                <text x="430" y="275" fill="#f87171" fontSize="9">CONGESTION: {zoneSpeedData.find(z => z.zone === 'Downtown Core')?.congestionScore || 82}% (CRITICAL)</text>
 
                 {/* Zone Highway A1 */}
                 <text x="80" y="65" fill="#93c5fd" fontWeight="bold">SECTOR: HIGHWAY A1 CORRIDOR</text>
@@ -227,7 +233,7 @@ export const CityMapPanel: React.FC = () => {
 
                 {/* Zone North Sector */}
                 <rect x="140" y="60" width="150" height="110" fill="none" stroke="#f59e0b" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.4" />
-                <text x="150" y="80" fill="#fbbf24">ZONE: NORTH TUNNEL</text>
+                <text x="150" y="80" fill="#fbbf24">ZONE: NORTH CORRIDOR</text>
               </g>
             )}
 
@@ -294,7 +300,7 @@ export const CityMapPanel: React.FC = () => {
           })}
 
           {/* Incident Callouts Overlay (if active) */}
-          {activeLayers.incidents && safetyAlerts.slice(0, 2).map((alert, index) => {
+          {activeLayers.incidents && safetyAlerts.slice(0, 2).map((alert) => {
             const cam = cameras.find((c) => c.id === alert.cameraId);
             if (!cam) return null;
             return (
@@ -364,19 +370,19 @@ export const CityMapPanel: React.FC = () => {
         <div className="absolute bottom-3 right-3 z-10 bg-slate-950/85 backdrop-blur border border-slate-800 rounded-lg p-2 text-[10px] font-mono flex flex-col gap-1 text-slate-300">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
-            <span>Normal Stream (48)</span>
+            <span>Normal Stream ({normalCount})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-            <span>Warning / Congestion (2)</span>
+            <span>Warning / Congestion ({warningCount})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-            <span>Critical Accident (2)</span>
+            <span>Critical Accident ({criticalCount})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
-            <span>Offline (2)</span>
+            <span>Offline ({offlineCount})</span>
           </div>
         </div>
       </div>
