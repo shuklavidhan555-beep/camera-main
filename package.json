@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "lint": "oxlint src",
+    "test": "node --experimental-strip-types tests/data_integration.test.js && node --experimental-strip-types tests/model_training_and_camera_feeds.test.js && node --experimental-strip-types tests/kinematic_collision_and_ai_video.test.js && node tests/server_smoke.test.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -18,7 +19,8 @@
     "react-dom": "^19.2.8",
     "recharts": "^3.10.1",
     "tailwind-merge": "^3.7.0",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
