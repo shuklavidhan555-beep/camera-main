@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CALENZO - Clinic Appointment & Queue Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-wrapper">
+        <!-- Caduceus & Calenzo Icon -->
+        <svg class="brand-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" fill="#EFF6FF" stroke="#1E3A8A" stroke-width="2.5"/>
+          <path d="M24 10V38" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+          <path d="M16 24H32" stroke="#0284C7" stroke-width="3" stroke-linecap="round"/>
+          <path d="M15 17C18 13 30 13 33 17C35 20 28 23 24 24" stroke="#0284C7" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M33 31C30 35 18 35 15 31C13 28 20 25 24 24" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="24" cy="10" r="2" fill="#1E3A8A"/>
+        </svg>
+        <div class="brand-text">
+          <h1>CALENZO</h1>
+          <p data-i18n="brandSubtitle">Handling your conversion, convenience, and patients.</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="status-badge">
+          <span class="status-pulse"></span>
+          <span data-i18n="liveStatus">Live Online 24/7</span>
+        </div>
+
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हिंदी</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role Switcher Bar -->
+    <nav class="role-nav">
+      <button class="role-tab active" data-role="patient">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="navPatient">Patient Portal & Live Tracker</span>
+      </button>
+
+      <button class="role-tab" data-role="receptionist">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span data-i18n="navReceptionist">Front Desk (Receptionist)</span>
+        <span class="tab-badge" id="badge-waiting-count">4</span>
+      </button>
+
+      <button class="role-tab" data-role="doctor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span data-i18n="navDoctor">Doctor Room</span>
+      </button>
+
+      <button class="role-tab" data-role="admin">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="navAdmin">Admin & Analytics</span>
+      </button>
+
+      <button class="role-tab" data-role="tv">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+        <span data-i18n="navTv">TV Display</span>
+      </button>
+
+      <button class="role-tab" data-role="notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span data-i18n="navMessages">WhatsApp Log</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Clinic Delay Alert Banner -->
+  <div class="container" style="padding-bottom: 0;">
+    <div id="clinic-delay-banner" class="clinic-delay-alert" style="display: none;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div>
+          <strong>Doctor Delay Notice:</strong> Consultations are running approximately <span id="delay-mins-text">15</span> minutes behind schedule due to an emergency case. Arrival windows have been shifted automatically.
+        </div>
+      </div>
+      <span class="badge badge-warm">WhatsApp Broadcasted</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- ================= VIEW 1: PATIENT PORTAL & LIVE TRACKER ================= -->
+    <section id="view-patient" class="view-section active">
+      
+      <!-- Live Tracker Hero Banner -->
+      <div class="live-tracker-hero">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <span class="badge" style="background: rgba(255,255,255,0.2); color: #FFFFFF; margin-bottom: 8px;">Real-Time Queue Tracking</span>
+            <h2 style="font-size: 28px; font-weight: 800;" data-i18n="trackTitle">Live Queue Tracker</h2>
+            <p style="color: #BAE6FD; font-size: 14px;" data-i18n="trackSubtitle">Check your live position before leaving home to arrive at the perfect time.</p>
+          </div>
+
+          <div style="display: flex; gap: 8px; background: rgba(255,255,255,0.15); padding: 6px; border-radius: var(--radius-md); backdrop-filter: blur(8px);">
+            <input type="text" id="tracker-search-input" class="form-control" style="width: 220px; background: #FFFFFF; border: none;" placeholder="Enter Token (e.g. A-04)..." value="A-04">
+            <button class="btn btn-primary" id="tracker-search-btn" data-i18n="trackBtn">Track</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Live Tracker Card Details -->
+        <div id="patient-live-card" style="margin-top: 24px;">
+          <div class="tracker-grid">
+            <div class="tracker-metric">
+              <div class="tracker-metric-label" data-i18n="nowServing">Now In Consultation</div>
+              <div class="tracker-metric-value" id="tracker-now-serving">A-03</div>
+              <div class="tracker-metric-sub">Dr. Arvind Sharma (Room 1)</div>
+            </div>
+
+            <div class="tracker-metric">
+              <div class="tracker-metric-label" data-i18n="yourToken">Your Token</div>
+              <div class="tracker-metric-value" id="tracker-your-token" style="color: #38BDF8;">A-04</div>
+              <div class="tracker-metric-sub" id="tracker-patient-name">Priya Verma</div>
+            </div>
+
+            <div class="tracker-metric">
+              <div class="tracker-metric-label" data-i18n="peopleAhead">Patients Ahead of You</div>
+              <div class="tracker-metric-value" id="tracker-ahead-count">1</div>
+              <div class="tracker-metric-sub" id="tracker-wait-mins">~10m wait time</div>
+            </div>
+          </div>
+
+          <!-- Suggested Arrival Window -->
+          <div class="arrival-window-banner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div style="flex: 1;">
+              <strong data-i18n="suggestedArrival">Suggested Arrival Window:</strong>
+              <span id="tracker-arrival-window" style="font-weight: 700; font-size: 15px; margin-left: 6px;">09:50 AM - 10:00 AM</span>
+              <span style="font-size: 12px; margin-left: 10px;" data-i18n="arrivalNotice">Please arrive within this window to avoid waiting outside.</span>
+            </div>
+            <button class="btn btn-danger btn-sm" id="btn-emergency-cancel" data-i18n="emergencyCancelBtn">Emergency? Cancel / Reschedule</button>
+          </div>
+
+          <!-- Status Progression Timeline -->
+          <div class="status-timeline">
+            <div class="timeline-step" id="step-waiting">
+              <div class="step-circle">1</div>
+              <div class="step-name" data-i18n="statusWaiting">Waiting at Home</div>
+            </div>
+            <div class="timeline-step" id="step-arrived">
+              <div class="step-circle">2</div>
+              <div class="step-name" data-i18n="statusArrived">Checked-in</div>
+            </div>
+            <div class="timeline-step" id="step-consulting">
+              <div class="step-circle">3</div>
+              <div class="step-name" data-i18n="statusConsulting">In Consultation</div>
+            </div>
+            <div class="timeline-step" id="step-completed">
+              <div class="step-circle">4</div>
+              <div class="step-name" data-i18n="statusCompleted">Completed</div>
+            </div>
+          </div>
+          <div id="tracker-status-text" style="font-size: 13px; color: #E2E8F0; text-align: center; margin-top: 4px;">
+            Your token is next in line. Please proceed to the clinic waiting area.
+          </div>
+        </div>
+      </div>
+
+      <!-- Online Booking Card -->
+      <div class="card">
+        <div class="card-title">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span data-i18n="bookTitle">Book Clinic Appointment</span>
+          </div>
+          <span class="badge badge-waiting" data-i18n="noDoubleBooking">Guaranteed: Only open slots shown. No double bookings.</span>
+        </div>
+
+        <form id="patient-booking-form">
+          <!-- Step 1: Consultation Type -->
+          <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 8px;" data-i18n="stepPatientType">1. Consultation Type</label>
+          <div class="type-selection-cards">
+            <div class="type-card selected" data-type="new">
+              <h4 data-i18n="typeNew">First-Time Patient (New)</h4>
+              <p data-i18n="typeNewDesc">Comprehensive 20-min consultation & intake</p>
+              <span class="type-duration">⏱ 20 Minutes • ₹600</span>
+            </div>
+
+            <div class="type-card" data-type="follow_up">
+              <h4 data-i18n="typeFollowUp">Returning Patient (Follow-up)</h4>
+              <p data-i18n="typeFollowUpDesc">Routine 10-min review or lab report check</p>
+              <span class="type-duration">⏱ 10 Minutes • ₹300</span>
+            </div>
+
+            <div class="type-card" data-type="procedure">
+              <h4 data-i18n="typeProcedure">Procedure / Screening</h4>
+              <p data-i18n="typeProcedureDesc">ECG, cardiac screening, preventive checkups</p>
+              <span class="type-duration">⏱ 30 Minutes • ₹1200</span>
+            </div>
+          </div>
+
+          <!-- Step 2: Date & Available Slots -->
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="booking-date" data-i18n="dateLabel">Select Date <span class="required">*</span></label>
+              <input type="date" id="booking-date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="slotLabel">Available Unbooked Slots <span class="required">*</span></label>
+              <div class="slot-grid">
+                <button type="button" class="slot-btn booked">09:00 AM</button>
+                <button type="button" class="slot-btn booked">09:20 AM</button>
+                <button type="button" class="slot-btn booked">09:40 AM</button>
+                <button type="button" class="slot-btn booked">10:00 AM</button>
+                <button type="button" class="slot-btn selected" data-slot="10:25 AM">10:25 AM</button>
+                <button type="button" class="slot-btn" data-slot="10:55 AM">10:55 AM</button>
+                <button type="button" class="slot-btn" data-slot="11:15 AM">11:15 AM</button>
+                <button type="button" class="slot-btn" data-slot="11:45 AM">11:45 AM</button>
+                <button type="button" class="slot-btn" data-slot="03:00 PM">03:00 PM</button>
+                <button type="button" class="slot-btn" data-slot="03:30 PM">03:30 PM</button>
+                <button type="button" class="slot-btn" data-slot="04:00 PM">04:00 PM</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Patient Information -->
+          <div class="grid-3">
+            <div class="form-group">
+              <label for="booking-name" data-i18n="fullName">Full Name <span class="required">*</span></label>
+              <input type="text" id="booking-name" class="form-control" placeholder="e.g. Ramesh Patel" required>
+            </div>
+
+            <div class="form-group">
+              <label for="booking-phone" data-i18n="phoneLabel">WhatsApp / Mobile Number <span class="required">*</span></label>
+              <input type="tel" id="booking-phone" class="form-control" placeholder="+91 98XXX XXXXX" required>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="booking-age" data-i18n="ageLabel">Age</label>
+                  <input type="number" id="booking-age" class="form-control" placeholder="32" min="1" max="110">
+                </div>
+                <div style="flex: 1;">
+                  <label for="booking-gender" data-i18n="genderLabel">Gender</label>
+                  <select id="booking-gender" class="form-control">
+                    <option value="Male" data-i18n="male">Male</option>
+                    <option value="Female" data-i18n="female">Female</option>
+                    <option value="Other" data-i18n="other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="booking-notes" data-i18n="symptomsLabel">Brief Symptoms / Reason for Visit</label>
+            <input type="text" id="booking-notes" class="form-control" placeholder="e.g. Fever for 2 days, headache, BP checkup">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block" data-i18n="bookButton">Confirm Booking & Get Token</button>
+        </form>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 2: RECEPTIONIST FRONT DESK ================= -->
+    <section id="view-receptionist" class="view-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Front Desk Operations</h2>
+          <p>Rapid walk-in intake, live queue controls, arrival check-in, and WhatsApp messaging.</p>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-warning" onclick="addClinicDelay(15)">+15m Clinic Delay</button>
+          <button class="btn btn-secondary" onclick="refreshAllData()">Refresh Queue</button>
+        </div>
+      </div>
+
+      <!-- Rapid 30-Sec Walk-in Intake Form -->
+      <div class="card" style="border-left: 5px solid var(--accent);">
+        <div class="card-title">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            <span data-i18n="walkInTitle">Rapid Walk-in Intake</span>
+          </div>
+          <span style="font-size: 12px; color: var(--text-muted);">Completes intake & inserts into queue in under 30 seconds</span>
+        </div>
+
+        <form id="walkin-quick-form" class="grid-4" style="align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Patient Name <span class="required">*</span></label>
+            <input type="text" id="walkin-name" class="form-control" placeholder="e.g. Meera Nair" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Mobile / WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="walkin-phone" class="form-control" placeholder="+91 98765 00000" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <div style="display: flex; gap: 6px;">
+              <div style="width: 70px;">
+                <label>Age</label>
+                <input type="number" id="walkin-age" class="form-control" placeholder="28">
+              </div>
+              <div style="flex: 1;">
+                <label>Gender</label>
+                <select id="walkin-gender" class="form-control">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Consultation Type</label>
+            <div style="display: flex; gap: 6px;">
+              <select id="walkin-type" class="form-control" style="flex: 1;">
+                <option value="new">New Patient (20m)</option>
+                <option value="follow_up">Follow-Up (10m)</option>
+                <option value="procedure">Procedure (30m)</option>
+              </select>
+              <input type="hidden" id="walkin-service" value="General Physician Consultation">
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">+ Add Walk-In</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Live Reception Queue Table -->
+      <div class="card">
+        <div class="card-title">
+          <span>Today's Live Queue Control</span>
+          <span class="badge badge-waiting">Real-Time Sync Active</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Patient Details</th>
+                <th>Consultation Type</th>
+                <th>Slot / Arrival</th>
+                <th>Status</th>
+                <th>WhatsApp</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reception-queue-tbody">
+              <!-- Populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 3: DOCTOR CONSULTATION ROOM ================= -->
+    <section id="view-doctor" class="view-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2 data-i18n="docRoomTitle">Doctor Consultation Room</h2>
+          <p data-i18n="docSubtitle">Live queue monitor, patient records, and consultation flow.</p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="elapsedTime">Consultation Timer</div>
+            <div id="consult-live-timer" class="consultation-timer">00:00</div>
+          </div>
+          <button class="btn btn-success btn-lg" onclick="doctorCompleteConsultation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span data-i18n="completeConsult">Complete & Next</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Next in line strip -->
+      <div class="card" style="padding: 12px 20px; background: #F8FAFC;">
+        <div style="display: flex; align-items: center; gap: 14px; overflow-x: auto;">
+          <strong style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap;">Up Next in Queue:</strong>
+          <div id="doc-next-queue-strip" style="display: flex; gap: 10px; align-items: center; flex: 1;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- No Patient in Room Notice -->
+      <div id="doc-no-patient-notice" class="card" style="text-align: center; padding: 60px 20px; display: none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin: 0 auto 12px auto;"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+        <h3>No Patient Currently Inside Consultation Room</h3>
+        <p style="color: var(--text-muted); margin-top: 4px;">Click "Call In" on any waiting patient from the strip above to start their consultation.</p>
+      </div>
+
+      <!-- Current Patient In Room Card -->
+      <div id="doc-current-patient-card" class="grid-2">
+        <!-- Patient History & Profile Column -->
+        <div class="card">
+          <div class="card-title">
+            <div>
+              <span class="token-box" id="doc-patient-token" style="font-size: 16px; margin-right: 8px;">A-03</span>
+              <span id="doc-patient-name" style="font-size: 18px;">Amit Patel</span>
+            </div>
+            <span class="badge badge-consulting">In Room</span>
+          </div>
+
+          <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" id="doc-patient-meta">
+            29 yrs, Male • +91 97234 55667
+          </div>
+
+          <div style="margin-bottom: 16px; padding: 12px; background: #F8FAFC; border-radius: 8px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Consultation Type</div>
+            <div style="font-size: 14px; font-weight: 600;" id="doc-patient-type">First-Time Consultation</div>
+            <div style="font-size: 12px; color: var(--accent);" id="doc-patient-service">General Physician Consultation</div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;" data-i18n="medicalHistory">Past Medical History</label>
+            <div id="doc-patient-history" style="font-size: 13px; color: var(--text-main); margin-top: 4px; padding: 10px; background: #FFF; border: 1px solid var(--border); border-radius: 6px;">
+              Acute viral fever with persistent cough and body aches.
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;" data-i18n="allergies">Known Allergies</label>
+            <div id="doc-patient-allergies" style="font-size: 13px; color: var(--danger); font-weight: 600; margin-top: 4px;">
+              Sulfa drugs
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Confidential Clinic Notes</label>
+            <div id="doc-patient-prev-notes" style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Software engineer working long hours. Advised 3 days rest.
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Notes & Prescription Column -->
+        <div class="card">
+          <div class="card-title">
+            <span>Doctor Assessment & Prescription</span>
+            <span style="font-size: 12px; color: var(--text-muted);">Auto-saves to patient database</span>
+          </div>
+
+          <div class="form-group">
+            <label>Clinical Assessment / Examination</label>
+            <textarea id="doc-input-notes" class="form-control" placeholder="Vital signs, chest auscultation, clinical symptoms, test readings...">Acute viral symptoms for 3 days. Temperature 100.4 F. Chest clear to auscultation.</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Diagnosis</label>
+            <input type="text" id="doc-input-diagnosis" class="form-control" placeholder="e.g. Upper Respiratory Tract Infection" value="Acute Upper Respiratory Tract Infection">
+          </div>
+
+          <div class="form-group">
+            <label>Prescription & Dosage (Rx)</label>
+            <textarea id="doc-input-rx" class="form-control" placeholder="Tab Paracetamol 650mg TDS x 3 days, Levocetirizine 5mg nocte...">Tab Paracetamol 650mg TDS, Levocetirizine 5mg nocte x 5 days. Steam inhalation twice daily.</textarea>
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="followUpInLabel">Recommended Follow-up In:</label>
+            <select id="doc-select-followup" class="form-control">
+              <option value="7">7 Days (Hot - Routine recovery check)</option>
+              <option value="14">14 Days (Warm - Re-evaluation)</option>
+              <option value="30">30 Days (Warm - Monthly monitoring)</option>
+              <option value="90">90 Days (Cold - Quarterly lab review)</option>
+              <option value="0">No follow-up needed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 4: ADMIN HUB & ANALYTICS ================= -->
+    <section id="view-admin" class="view-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2 data-i18n="analyticsTitle">Clinic Performance & Analytics</h2>
+          <p>Real-time metrics, automated follow-up CRM, patient database, and clinic configuration.</p>
+        </div>
+
+        <button class="btn btn-secondary" onclick="exportPatientsToCSV()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Patient Data (CSV)
+        </button>
+      </div>
+
+      <!-- Key Analytics Metrics Cards -->
+      <div class="grid-4" style="margin-bottom: 24px;">
+        <div class="card" style="padding: 20px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-i18n="monthlyAppointments">Total Appointments</div>
+          <div id="metric-total-appts" style="font-size: 32px; font-weight: 800; color: var(--primary); margin: 6px 0;">11</div>
+          <div style="font-size: 12px; color: var(--success);">✓ <span id="metric-completed">4</span> Completed Today</div>
+        </div>
+
+        <div class="card" style="padding: 20px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-i18n="noShowRate">No-Show Rate</div>
+          <div id="metric-noshow-rate" style="font-size: 32px; font-weight: 800; color: var(--warning); margin: 6px 0;">9.1%</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Tracked across all slots</div>
+        </div>
+
+        <div class="card" style="padding: 20px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-i18n="avgWaitTime">Avg Wait Time</div>
+          <div id="metric-avg-wait" style="font-size: 32px; font-weight: 800; color: var(--accent); margin: 6px 0;">14m</div>
+          <div style="font-size: 12px; color: var(--text-muted);">From arrival to consultation</div>
+        </div>
+
+        <div class="card" style="padding: 20px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;" data-i18n="avgConsultTime">Avg Consult Time</div>
+          <div id="metric-avg-consult" style="font-size: 32px; font-weight: 800; color: var(--success); margin: 6px 0;">18m</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Calculated rolling average</div>
+        </div>
+      </div>
+
+      <!-- Source Breakdown & Peak Hours -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">
+            <span data-i18n="sourceBreakdown">Source Breakdown: Online vs Walk-in</span>
+          </div>
+
+          <div style="margin: 20px 0;">
+            <div style="display: flex; height: 24px; border-radius: var(--radius-full); overflow: hidden; background: #E2E8F0;">
+              <div id="bar-online" style="background: var(--primary); width: 73%;" title="Online Bookings"></div>
+              <div id="bar-walkin" style="background: var(--accent); width: 27%;" title="Walk-ins"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px;">
+              <span id="pct-online-text" style="color: var(--primary); font-weight: 700;">Online: 73% (8)</span>
+              <span id="pct-walkin-text" style="color: var(--accent); font-weight: 700;">Walk-in: 27% (3)</span>
+            </div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted);">High online booking ratio reduces front-desk congestion and enables pre-arrival wait time tracking.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span data-i18n="busiestHours">Peak Hours & Busiest Slots</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: flex-end; height: 90px; padding-top: 10px;">
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 60px; background: #93C5FD; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px;">09:00 AM</span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 80px; background: #1E3A8A; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px; font-weight: 700; color: #1E3A8A;">10:00 AM*</span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 45px; background: #93C5FD; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px;">11:00 AM</span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 30px; background: #E2E8F0; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px;">12:00 PM</span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 65px; background: #60A5FA; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px;">02:30 PM</span>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div style="height: 45px; background: #93C5FD; border-radius: 4px 4px 0 0;"></div>
+              <span style="font-size: 10px;">04:00 PM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-Up Management CRM (Feature 6) -->
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <span data-i18n="followUpTitle">Follow-Up CRM & Patient Retention</span>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="followUpSubtitle">Ensure 100% post-visit retention. Automatic tasks generated after each visit.</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <span class="badge badge-hot">Hot (Urgent)</span>
+            <span class="badge badge-warm">Warm (Routine)</span>
+            <span class="badge badge-cold">Cold (Low)</span>
+          </div>
+        </div>
+
+        <div id="followups-list">
+          <!-- Populated via app.js -->
+        </div>
+      </div>
+
+      <!-- Patient Database & Medical Records (Feature 7) -->
+      <div class="card">
+        <div class="card-title">
+          <span>Searchable Patient Database & Medical History</span>
+          <input type="text" id="patient-search-input" class="form-control" style="width: 260px;" placeholder="Search name, phone, or ID...">
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name & Demographics</th>
+                <th>Phone</th>
+                <th>Visits & No-Shows</th>
+                <th>Medical History Preview</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="patients-tbody">
+              <!-- Populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Clinic Settings (Feature 9) -->
+      <div class="card">
+        <div class="card-title">
+          <span>Clinic Settings & Schedule Configuration</span>
+        </div>
+
+        <form id="clinic-settings-form" onsubmit="event.preventDefault(); alert('Clinic settings saved.');">
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Clinic Name</label>
+              <input type="text" id="setting-clinic-name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Doctor Name</label>
+              <input type="text" id="setting-doctor-name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Specialization</label>
+              <input type="text" id="setting-specialization" class="form-control">
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Clinic Contact Phone</label>
+              <input type="tel" id="setting-phone" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>WhatsApp Business Number</label>
+              <input type="tel" id="setting-whatsapp" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Clinic Address</label>
+              <input type="text" id="setting-address" class="form-control">
+            </div>
+          </div>
+
+          <div class="grid-4">
+            <div class="form-group">
+              <label>Opening Time</label>
+              <input type="time" id="setting-open-time" class="form-control" value="09:00">
+            </div>
+            <div class="form-group">
+              <label>Closing Time</label>
+              <input type="time" id="setting-close-time" class="form-control" value="18:00">
+            </div>
+            <div class="form-group">
+              <label>New Consultation Duration (mins)</label>
+              <input type="number" id="setting-duration-new" class="form-control" value="20">
+            </div>
+            <div class="form-group">
+              <label>Follow-up Duration (mins)</label>
+              <input type="number" id="setting-duration-followup" class="form-control" value="10">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 5: TV DISPLAY (DIGITAL SIGNAGE) ================= -->
+    <section id="view-tv" class="view-section">
+      <div class="tv-banner-top">
+        <div class="tv-clinic-info">
+          <h2 class="clinic-name-text">Calenzo Care Clinic & Specialty Center</h2>
+          <p>Please watch for your token number and proceed to Consultation Room 1 when called.</p>
+        </div>
+        <div class="tv-clock" id="tv-live-clock">10:15:32 AM</div>
+      </div>
+
+      <div class="tv-display-grid">
+        <!-- Now Serving Box -->
+        <div class="tv-now-serving-box">
+          <div class="tv-now-label" data-i18n="tvNowServing">NOW SERVING</div>
+          <div class="tv-big-token" id="tv-serving-token">A-03</div>
+          <div class="tv-patient-name" id="tv-serving-patient">Amit Patel</div>
+          <div class="tv-room-badge" data-i18n="tvRoom">CONSULTATION ROOM 1</div>
+          <div style="margin-top: 15px; color: #94A3B8; font-size: 14px;" class="doctor-name-text">Dr. Arvind Sharma</div>
+        </div>
+
+        <!-- Upcoming Tokens -->
+        <div class="tv-upcoming-panel">
+          <div class="tv-upcoming-header">
+            <span data-i18n="tvNextUp">NEXT IN LINE</span>
+            <span data-i18n="tvEstimatedWait">Approx. Wait</span>
+          </div>
+          <div id="tv-upcoming-list">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="tv-audio-prompt" data-i18n="tvSoundNotice">
+            🔔 Click anywhere on screen to enable audio chime & voice announcements
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= VIEW 6: WHATSAPP NOTIFICATION LOG ================= -->
+    <section id="view-notifications" class="view-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Automated WhatsApp & SMS Notification System</h2>
+          <p>Real-time audit log of booking confirmations, delay notices, turn-approaching alerts, and follow-up reminders.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Dispatched WhatsApp Messages Log</span>
+          <span class="badge badge-arrived">WhatsApp Business API Simulator</span>
+        </div>
+
+        <div id="notifications-timeline">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal: Booking Success & Token Ticket -->
+  <div id="modal-booking-success" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🎉 Booking Confirmed!</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <div class="ticket-card">
+        <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted);">Your Queue Token Number</div>
+        <div class="ticket-token-large" id="conf-token-number">A-09</div>
+        <strong id="conf-patient-name" style="font-size: 16px;">Patient Name</strong>
+        <div id="conf-date-slot" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">2026-09-27 at 10:25 AM</div>
+        <div style="margin-top: 10px; font-size: 13px; color: #1D4ED8; font-weight: 600;">
+          Suggested Arrival: <span id="conf-arrival-window">10:15 AM - 10:25 AM</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Simulated WhatsApp Message Sent to Patient</label>
+        <div class="wa-message-bubble outbound" style="margin-top: 6px;">
+          <span id="conf-wa-message"></span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary btn-block" id="conf-track-btn">Track Live Queue Before Leaving</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal: Emergency Cancellation & 50% Refund / Reschedule (Page 4) -->
+  <div id="modal-emergency-cancel" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color: var(--danger);">Emergency Cancellation / Reschedule</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Cancelling for Token <strong id="cancel-token-display">A-04</strong> (<span id="cancel-name-display">Priya Verma</span>). Per clinic policy, you can reschedule to the next business day or receive an instant 50% refund.
+      </p>
+
+      <div class="form-group">
+        <label>Reason for Cancellation <span class="required">*</span></label>
+        <select id="cancel-reason-select" class="form-control">
+          <option value="Medical Emergency">Medical Emergency / Hospitalization</option>
+          <option value="Severe Travel Delay">Severe Travel Delay / Traffic</option>
+          <option value="Work / Personal Conflict">Urgent Work / Personal Conflict</option>
+          <option value="Feeling Better">Symptoms Resolved / Feeling Better</option>
+          <option value="Other">Other Reason</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Select Resolution Option <span class="required">*</span></label>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
+            <input type="radio" name="cancel-resolution" value="reschedule_next_day" checked style="margin-top: 3px;">
+            <div>
+              <strong>Reschedule to Next Available Business Day</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">Retains full consultation fee and secures earliest morning priority slot tomorrow.</div>
+            </div>
+          </label>
+
+          <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
+            <input type="radio" name="cancel-resolution" value="refund_50" style="margin-top: 3px;">
+            <div>
+              <strong>Instant 50% Refund to Original Payment Source</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">Cancels slot immediately and returns 50% of the consultation fee per emergency policy.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div style="font-size: 12px; color: var(--accent); margin-bottom: 16px;">
+        ℹ Dynamic Queue Impact: This slot will be freed, downstream patient wait times will be subtracted immediately, and the empty slot will be offered to the priority waitlist.
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-secondary modal-close">Keep Appointment</button>
+        <button class="btn btn-danger" id="btn-confirm-emergency-cancel">Confirm Cancellation</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal: Patient Full Medical History & Records (Feature 7) -->
+  <div id="modal-patient-history" class="modal-overlay">
+    <div class="modal-card" style="max-width: 650px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-p-name">Patient Name</h3>
+          <span style="font-size: 12px; color: var(--text-muted);" id="modal-p-id">P-101</span>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Demographics</div>
+          <div id="modal-p-age-gender" style="font-size: 14px; font-weight: 600;">48 yrs, Male</div>
+          <div id="modal-p-phone" style="font-size: 13px; color: var(--text-muted);">+91 98450 11223</div>
+          <div id="modal-p-address" style="font-size: 12px; color: var(--text-muted);">Bengaluru</div>
+        </div>
+
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Emergency Contact</div>
+          <div id="modal-p-emergency" style="font-size: 13px; color: var(--text-main);">Family</div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-waiting"><span id="modal-p-visits">4</span> Total Visits</span>
+            <span class="badge badge-skipped"><span id="modal-p-noshows">0</span> No-shows</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Medical History</label>
+        <div id="modal-p-history" style="font-size: 13px; padding: 10px; background: #F8FAFC; border-radius: 6px; margin-top: 4px;">
+          None
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Allergies</label>
+        <div id="modal-p-allergies" style="font-size: 13px; color: var(--danger); font-weight: 600; margin-top: 4px;">
+          None
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Confidential Staff Notes</label>
+        <div id="modal-p-notes" style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+          None
+        </div>
+      </div>
+
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Past Consultation Records</label>
+        <div id="modal-p-past-appts" style="margin-top: 6px;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

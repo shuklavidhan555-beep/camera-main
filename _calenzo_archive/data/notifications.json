@@ -1,0 +1,177 @@
+﻿[
+    {
+        "id":  "MSG-75563235",
+        "timestamp":  "2026-09-27T20:55:07Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 08:55 PM. Token: *A-16*. Suggested Arrival: 10 mins before 08:55 PM. Track live queue before leaving home: http://localhost:5000/?token=A-16"
+    },
+    {
+        "id":  "MSG-04239571",
+        "timestamp":  "2026-09-27T20:54:10Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "follow_up_reminder",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. This is a gentle follow-up reminder from Calenzo Care Clinic \u0026 Specialty Center. Your scheduled follow-up is due on 2026-10-04 (Follow-up consultation after General Physician Consultation). To book your preferred slot directly: http://localhost:5000/"
+    },
+    {
+        "id":  "MSG-78948842",
+        "timestamp":  "2026-09-27T20:54:07Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "follow_up_reminder",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. This is a gentle follow-up reminder from Calenzo Care Clinic \u0026 Specialty Center. Your scheduled follow-up is due on 2026-10-04 (Follow-up consultation after General Physician Consultation). To book your preferred slot directly: http://localhost:5000/"
+    },
+    {
+        "id":  "MSG-74915294",
+        "timestamp":  "2026-09-27T20:53:47Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 08:53 PM. Token: *A-15*. Suggested Arrival: 10 mins before 08:53 PM. Track live queue before leaving home: http://localhost:5000/?token=A-15"
+    },
+    {
+        "id":  "MSG-82348953",
+        "timestamp":  "2026-09-27T20:53:18Z",
+        "recipientPhone":  "All Waiting Patients",
+        "recipientName":  "Queue Broadcast",
+        "type":  "delay_notice",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Urgent Clinic Update from Calenzo Care Clinic \u0026 Specialty Center: Dr. is currently running approximately 15 minutes behind schedule due to an emergency case. Your queue position is retained and arrival window is adjusted. Live tracker: http://localhost:5000/"
+    },
+    {
+        "id":  "MSG-73318930",
+        "timestamp":  "2026-09-27T20:52:57Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 08:52 PM. Token: *A-14*. Suggested Arrival: 10 mins before 08:52 PM. Track live queue before leaving home: http://localhost:5000/?token=A-14"
+    },
+    {
+        "id":  "MSG-61751938",
+        "timestamp":  "2026-09-27T20:51:46Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 08:51 PM. Token: *A-13*. Suggested Arrival: 10 mins before 08:51 PM. Track live queue before leaving home: http://localhost:5000/?token=A-13"
+    },
+    {
+        "id":  "MSG-51652035",
+        "timestamp":  "2026-09-27T20:51:15Z",
+        "recipientPhone":  "0000000000",
+        "recipientName":  "l",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste l ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 08:51 PM. Token: *A-12*. Suggested Arrival: 10 mins before 08:51 PM. Track live queue before leaving home: http://localhost:5000/?token=A-12"
+    },
+    {
+        "id":  "MSG-21835729",
+        "timestamp":  "2026-09-27T20:40:02Z",
+        "recipientPhone":  "All Waiting Patients",
+        "recipientName":  "Queue Broadcast",
+        "type":  "delay_notice",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Urgent Clinic Update from Calenzo Care Clinic \u0026 Specialty Center: Dr. is currently running approximately 15 minutes behind schedule due to an emergency case. Your queue position is retained and arrival window is adjusted. Live tracker: http://localhost:5000/"
+    },
+    {
+        "id":  "MSG-81378600",
+        "timestamp":  "2026-09-27T20:39:18Z",
+        "recipientPhone":  "8983237925",
+        "recipientName":  "ihihihih",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste ihihihih ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 03:00 PM. Token: *A-11*. Suggested Arrival: 10 mins before 03:00 PM. Track live queue before leaving home: http://localhost:5000/?token=A-11"
+    },
+    {
+        "id":  "MSG-33234561",
+        "timestamp":  "2026-09-27T20:39:03Z",
+        "recipientPhone":  "8998765789",
+        "recipientName":  "ihihihih",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste ihihihih ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 03:00 PM. Token: *A-10*. Suggested Arrival: 10 mins before 03:00 PM. Track live queue before leaving home: http://localhost:5000/?token=A-10"
+    },
+    {
+        "id":  "MSG-07108742",
+        "timestamp":  "2026-09-27T20:29:00Z",
+        "recipientPhone":  "+91 98765 43210",
+        "recipientName":  "Karan Mehra",
+        "type":  "cancellation_notice",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste Karan Mehra ji. Cancellation processed for token A-07. Resolution: 50% Refund Initiated to Original Payment Source. Thank you for informing Calenzo Care Clinic \u0026 Specialty Center."
+    },
+    {
+        "id":  "MSG-34629611",
+        "timestamp":  "2026-09-27T20:26:43Z",
+        "recipientPhone":  "+91 98220 99887",
+        "recipientName":  "Sneha Kulkarni",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste Sneha Kulkarni ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 11:45 AM. Token: *A-09*. Suggested Arrival: 10 mins before 11:45 AM. Track live queue before leaving home: http://localhost:5000/?token=A-09"
+    },
+    {
+        "id":  "MSG-98394158",
+        "timestamp":  "2026-09-27T20:24:19Z",
+        "recipientPhone":  "+91 98990 12345",
+        "recipientName":  "Deepak Joshi",
+        "type":  "booking_confirmation",
+        "channel":  "WhatsApp",
+        "status":  "Delivered",
+        "message":  "Namaste Deepak Joshi ji. Your appointment at Calenzo Care Clinic \u0026 Specialty Center is CONFIRMED with Dr. Arvind Sharma for 2026-09-27 at 11:45 AM. Token: *A-12*. Suggested Arrival: 10 mins before 11:45 AM. Track live queue before leaving home: http://localhost:5000/?token=A-12"
+    },
+    {
+        "value":  [
+                      {
+                          "id":  "MSG-001",
+                          "timestamp":  "2026-09-27T08:30:15Z",
+                          "recipientPhone":  "+91 98450 11223",
+                          "recipientName":  "Rajesh Kumar",
+                          "type":  "booking_confirmation",
+                          "channel":  "WhatsApp",
+                          "status":  "Delivered",
+                          "message":  "Namaste Rajesh Kumar ji. Your appointment at Calenzo Care Clinic is CONFIRMED with Dr. Arvind Sharma for today at 09:00 AM. Token Number: *A-01*. Suggested arrival window: 08:50 AM - 09:00 AM. Track live queue position before leaving home: http://localhost:5000/?token=A-01"
+                      },
+                      {
+                          "id":  "MSG-002",
+                          "timestamp":  "2026-09-27T08:45:00Z",
+                          "recipientPhone":  "+91 98112 33445",
+                          "recipientName":  "Sunita Sharma",
+                          "type":  "booking_confirmation",
+                          "channel":  "WhatsApp",
+                          "status":  "Delivered",
+                          "message":  "Namaste Sunita Sharma ji. Your appointment at Calenzo Care Clinic is CONFIRMED with Dr. Arvind Sharma for today at 09:20 AM. Token Number: *A-02*. Suggested arrival window: 09:10 AM - 09:20 AM. Track live queue position before leaving home: http://localhost:5000/?token=A-02"
+                      },
+                      {
+                          "id":  "MSG-003",
+                          "timestamp":  "2026-09-27T09:35:10Z",
+                          "recipientPhone":  "+91 99001 88776",
+                          "recipientName":  "Priya Verma",
+                          "type":  "queue_approaching",
+                          "channel":  "WhatsApp",
+                          "status":  "Delivered",
+                          "message":  "Namaste Priya Verma ji. Token *A-03* is currently in consultation. You are *1 patient away* (Token A-04). Please ensure you are in the clinic waiting area."
+                      }
+                  ],
+        "Count":  3
+    }
+]

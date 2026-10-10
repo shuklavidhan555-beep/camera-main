@@ -1,0 +1,65 @@
+﻿{
+    "clinicName":  "Calenzo Care Clinic \u0026 Specialty Center",
+    "tagline":  "Handling your conversion, convenience, and patients.",
+    "doctorName":  "Dr. Arvind Sharma",
+    "specialization":  "Consultant Physician \u0026 Cardiologist (MBBS, MD)",
+    "phone":  "+91 98201 54321",
+    "whatsappNumber":  "+91 98201 54321",
+    "address":  "Suite 204, MediHealth Complex, MG Road, Bengaluru, Karnataka 560001",
+    "mapsUrl":  "https://maps.google.com/?q=MG+Road+Bengaluru",
+    "openingHours":  {
+                         "start":  "09:00",
+                         "end":  "18:00",
+                         "lunchStart":  "13:30",
+                         "lunchEnd":  "14:30"
+                     },
+    "durations":  {
+                      "new":  20,
+                      "follow_up":  10,
+                      "procedure":  30
+                  },
+    "currentDelayMinutes":  30,
+    "lastDelayBroadcast":  "2026-09-27T20:53:18Z",
+    "services":  [
+                     {
+                         "id":  "s1",
+                         "name":  "General Physician Consultation",
+                         "type":  "new",
+                         "duration":  20,
+                         "fee":  600
+                     },
+                     {
+                         "id":  "s2",
+                         "name":  "Routine Follow-up Review",
+                         "type":  "follow_up",
+                         "duration":  10,
+                         "fee":  300
+                     },
+                     {
+                         "id":  "s3",
+                         "name":  "Diabetes \u0026 Hypertension Check",
+                         "type":  "new",
+                         "duration":  25,
+                         "fee":  750
+                     },
+                     {
+                         "id":  "s4",
+                         "name":  "ECG \u0026 Cardiac Screening",
+                         "type":  "procedure",
+                         "duration":  30,
+                         "fee":  1200
+                     },
+                     {
+                         "id":  "s5",
+                         "name":  "Vaccination \u0026 Preventive Care",
+                         "type":  "procedure",
+                         "duration":  15,
+                         "fee":  500
+                     }
+                 ],
+    "cancellationPolicy":  {
+                               "refundPercentage":  50,
+                               "allowReschedule":  true,
+                               "emergencyWindowHours":  24
+                           }
+}
